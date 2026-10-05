@@ -1,0 +1,46 @@
+<!-- blog/templates/blog/article_list.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}Portada | Plataforma de Artículos{% endblock title %}
+
+{% block content %}
+<h2>Artículos Publicados</h2>
+
+{% for article in articles %}
+    <div class="card">
+        {% if article.cover_image %}
+            <img src="{{ article.cover_image.url }}" alt="Portada" class="cover-img">
+        {% endif %}
+        
+        {% if article.category %}
+            <span class="badge" style="background-color: #34495e;">{{ article.category.name }}</span>
+        {% endif %}
+
+        <h2 style="margin: 0.5rem 0;">
+            <a href="{% url 'article_detail' article.slug %}" style="color: #2c3e50; text-decoration: none;">
+                {{ article.title }}
+            </a>
+        </h2>
+        
+        <p style="color: #7f8c8d; font-size: 0.9rem;">
+            Por <strong>{{ article.author.username }}</strong> | {{ article.created_at|date:"d/m/Y H:i" }}
+        </p>
+
+        <p>{{ article.content|truncatewords:35 }}</p>
+
+        <div>
+            {% for tag in article.tags.all %}
+                <span class="tag">#{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'article_detail' article.slug %}" class="btn">Leer artículo completo →</a>
+        </div>
+    </div>
+{% empty %}
+    <div class="card">
+        <p>No hay artículos publicados en este momento. ¡Regístrate y envía el primero a revisión!</p>
+    </div>
+{% endfor %}
+{% endblock content %}

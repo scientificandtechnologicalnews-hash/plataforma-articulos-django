@@ -1,0 +1,38 @@
+<!-- blog/templates/blog/article_detail.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ article.title }} | Revista Digital{% endblock title %}
+
+{% block content %}
+<div class="card">
+    {% if article.cover_image %}
+        <img src="{{ article.cover_image.url }}" alt="Portada" class="cover-img">
+    {% endif %}
+
+    {% if article.category %}
+        <span class="badge" style="background-color: #34495e;">{{ article.category.name }}</span>
+    {% endif %}
+
+    <h1 style="margin: 0.5rem 0; color: #2c3e50;">{{ article.title }}</h1>
+    
+    <p style="color: #7f8c8d; font-size: 0.9rem; border-bottom: 1px solid #eee; padding-bottom: 0.8rem;">
+        Redactado por <strong>{{ article.author.username }}</strong> | Publicado el {{ article.created_at|date:"d de F de Y" }}
+    </p>
+
+    <!-- Contenido completo del artículo -->
+    <div style="font-size: 1.1rem; line-height: 1.8; color: #2c3e50; margin: 1.5rem 0;">
+        {{ article.content|linebreaks }}
+    </div>
+
+    <div style="border-top: 1px solid #eee; padding-top: 1rem;">
+        <strong>Etiquetas:</strong>
+        {% for tag in article.tags.all %}
+            <span class="tag">#{{ tag.name }}</span>
+        {% empty %}
+            <span style="color: #7f8c8d; font-size: 0.9rem;">Sin etiquetas</span>
+        {% endfor %}
+    </div>
+</div>
+
+<a href="{% url 'article_list' %}" class="btn" style="background-color: #7f8c8d;">← Volver a la portada</a>
+{% endblock content %}

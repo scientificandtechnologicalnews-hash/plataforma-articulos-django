@@ -1,0 +1,22 @@
+<!-- blog/templates/blog/article_form.html -->
+{% extends 'blog/base.html' %}
+
+{% block title %}Redactar Nuevo Artículo | Revista Digital{% endblock title %}
+
+{% block content %}
+<div class="card">
+    <h2>✍️ Redactar Nuevo Artículo</h2>
+    <p style="color: #7f8c8d; font-size: 0.9rem;">
+        Completa el formulario para enviar tu borrador. Un editor revisará el contenido antes de que sea publicado.
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <button type="submit" class="btn" style="background-color: #2ecc71; margin-top: 1rem;">
+            Enviar a Revisión Editorial
+        </button>
+    </form>
+</div>
+{% endblock content %}
