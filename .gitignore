@@ -1,4 +1,4 @@
-echo "venv/
+venv/
 *.sqlite3
 __pycache__/
-media/" > .gitignore
+media/
