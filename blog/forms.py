@@ -1,7 +1,7 @@
 # blog/forms.py
 
 from django import forms
-from .models import Article, Review
+from .models import Article, Review, Comment
 
 class ArticleForm(forms.ModelForm):
     """
@@ -37,6 +37,22 @@ class ReviewForm(forms.ModelForm):
             'feedback': forms.Textarea(attrs={
                 'rows': 4,
                 'placeholder': 'Escribe los comentarios de revisión para el autor...'
+            }),
+        }
+
+
+class CommentForm(forms.ModelForm):
+    """
+    Formulario para redactar un nuevo comentario en un artículo.
+    """
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'Escribe tu comentario aquí...',
+                'style': 'width: 100%; padding: 0.6rem; border-radius: 4px; border: 1px solid #ccc;'
             }),
         }
 

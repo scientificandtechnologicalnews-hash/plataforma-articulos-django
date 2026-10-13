@@ -1,7 +1,7 @@
 # blog/admin.py
 
 from django.contrib import admin
-from .models import Category, Tag, Article, Review
+from .models import Category, Tag, Article, Review, Comment
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -64,4 +64,13 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ('approved', 'created_at')
     search_fields = ('article__title', 'reviewer__username', 'feedback')
 
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    """
+    Gestión de comentarios en el panel de administración.
+    """
+    list_display = ('article', 'author', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('article__title', 'author__username', 'content')
 # Register your models here.

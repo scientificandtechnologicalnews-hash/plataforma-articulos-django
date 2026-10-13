@@ -111,4 +111,31 @@ class Review(models.Model):
     def __str__(self):
         return f'Revisión de {self.reviewer.username} para "{self.article.title}"'
 
+
+class Comment(models.Model):
+    """
+    Modelo para almacenar los comentarios realizados por los usuarios en los artículos publicados.
+    """
+    article = models.ForeignKey(
+        Article, 
+        on_delete=models.CASCADE, 
+        related_name='comments', 
+        verbose_name="Artículo"
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='article_comments', 
+        verbose_name="Autor del Comentario"
+    )
+    content = models.TextField(verbose_name="Contenido del Comentario")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+
+    class Meta:
+        verbose_name = "Comentario"
+        verbose_name_plural = "Comentarios"
+        ordering = ['created_at'] # Muestra los comentarios en orden cronológico
+
+    def __str__(self):
+        return f'Comentario de {self.author.username} en "{self.article.title}"'
 # Create your models here.

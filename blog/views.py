@@ -3,8 +3,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Article, Category, Tag
-from .forms import ArticleForm
+
+# Importaciones relativas explícitas recomendadas
+from .models import Article, Category, Tag, Comment
+from .forms import ArticleForm, CommentForm
 
 
 def article_list(request):
@@ -18,11 +20,20 @@ def article_list(request):
 
 def article_detail(request, slug):
     """
-    Vista detallada de un artículo específico a través de su 'slug' único.
-    Solo muestra artículos que estén en estado 'PUBLICADO'.
+    Muestra el detalle del artículo publicado junto a sus comentarios existentes
+    y el formulario para enviar uno nuevo.
     """
     article = get_object_or_404(Article, slug=slug, status=Article.Status.PUBLISHED)
-    return render(request, 'blog/article_detail.html', {'article': article})
+    comments = article.comments.all() # Obtiene todos los comentarios asociados al artículo
+    comment_form = CommentForm() # Instancia el formulario limpio para redactar un comentario
+
+    # Contexto explícito hacia la plantilla HTML
+    context = {
+        'article': article,
+        'comments': comments,
+        'comment_form': comment_form,
+    }
+    return render(request, 'blog/article_detail.html', context)
 
 
 @login_required
@@ -50,4 +61,21 @@ def article_create(request):
 
     return render(request, 'blog/article_form.html', {'form': form})
 
-# Create your views here.
+
+@login_required
+def add_comment(request, slug):
+    """
+    Procesa el envío de un nuevo comentario asociándolo al artículo y al usuario autenticado.
+    """
+    article = get_object_or_404(Article, slug=slug, status=Article.Status.PUBLISHED)
+    
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.article = article # Relacionamos el comentario con este artículo
+            comment.author = request.user # Relacionamos el comentario con el usuario autenticado
+            comment.save()
+            messages.success(request, '¡Tu comentario ha sido publicado!')
+            
+    return redirect('article_detail', slug=slug)

@@ -34,5 +34,36 @@
     </div>
 </div>
 
-<a href="{% url 'article_list' %}" class="btn" style="background-color: #7f8c8d;">← Volver a la portada</a>
+<!-- Sección de Comentarios -->
+<div class="card">
+    <h3>💬 Comentarios ({{ comments.count }})</h3>
+
+    {% for comment in comments %}
+        <div style="background-color: #f8f9fa; padding: 0.8rem; border-radius: 6px; margin-bottom: 0.8rem; border-left: 4px solid #3498db;">
+            <strong>{{ comment.author.username }}</strong>
+            <small style="color: #7f8c8d; float: right;">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+            <p style="margin: 0.5rem 0 0 0; color: #2c3e50;">{{ comment.content }}</p>
+        </div>
+    {% empty %}
+        <p style="color: #7f8c8d;">Aún no hay comentarios en este artículo. ¡Sé el primero en opinar!</p>
+    {% endfor %}
+
+    <!-- Formulario para agregar un comentario -->
+    {% if user.is_authenticated %}
+        <h4 style="margin-top: 1.5rem;">Deja tu comentario</h4>
+        <form action="{% url 'add_comment' article.slug %}" method="post">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit" class="btn" style="background-color: #2ecc71; margin-top: 0.5rem;">
+                Publicar Comentario
+            </button>
+        </form>
+    {% else %}
+        <p style="margin-top: 1.5rem; color: #7f8c8d;">
+            <a href="{% url 'login' %}" style="color: #3498db;">Inicia sesión</a> para dejar un comentario.
+        </p>
+    {% endif %}
+</div>
+
+<a href="{% url 'article_list' %}" class="btn" style="background-color: #7f8c8d; margin-bottom: 2rem;">← Volver a la portada</a>
 {% endblock content %}
