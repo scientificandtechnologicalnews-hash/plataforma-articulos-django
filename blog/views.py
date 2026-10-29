@@ -3,6 +3,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Q
 
 # Importaciones relativas explícitas recomendadas
 from .models import Article, Category, Tag, Comment
@@ -11,30 +12,75 @@ from .forms import ArticleForm, CommentForm
 
 def article_list(request):
     """
-    Vista pública de la portada: Muestra únicamente los artículos aprobados 
-    y en estado 'PUBLICADO' (PUBLISHED).
+    Vista pública de la portada: Filtra artículos aprobados (PUBLISHED)
+    y permite búsquedas por texto, categoría o etiqueta.
     """
     articles = Article.objects.filter(status=Article.Status.PUBLISHED)
-    return render(request, 'blog/article_list.html', {'articles': articles})
+
+    # Filtrar por Categoría (si viene el parámetro ?category=slug en la URL)
+    category_slug = request.GET.get('category')
+    if category_slug:
+        articles = articles.filter(category__slug=category_slug)
+
+    # Filtrar por Etiqueta (si viene el parámetro ?tag=slug en la URL)
+    tag_slug = request.GET.get('tag')
+    if tag_slug:
+        articles = articles.filter(tags__slug=tag_slug)
+
+    # Búsqueda por palabra clave en título o contenido (?q=busqueda)
+    query = request.GET.get('q')
+    if query:
+        articles = articles.filter(
+            Q(title__icontains=query) | Q(content__icontains=query)
+        ).distinct()
+
+    categories = Category.objects.all()
+    tags = Tag.objects.all()
+
+    context = {
+        'articles': articles,
+        'categories': categories,
+        'tags': tags,
+        'query': query,
+    }
+    return render(request, 'blog/article_list.html', context)
 
 
 def article_detail(request, slug):
     """
-    Muestra el detalle del artículo publicado junto a sus comentarios existentes
-    y el formulario para enviar uno nuevo.
+    Vista detallada del artículo publicado, comentarios e información de 'Me gusta'.
     """
     article = get_object_or_404(Article, slug=slug, status=Article.Status.PUBLISHED)
-    comments = article.comments.all() # Obtiene todos los comentarios asociados al artículo
-    comment_form = CommentForm() # Instancia el formulario limpio para redactar un comentario
+    comments = article.comments.all()
+    comment_form = CommentForm()
 
-    # Contexto explícito hacia la plantilla HTML
+    # Comprobar si el usuario actual ya le dio 'Me gusta'
+    is_liked = False
+    if request.user.is_authenticated:
+        is_liked = article.likes.filter(id=request.user.id).exists()
+
     context = {
         'article': article,
         'comments': comments,
         'comment_form': comment_form,
+        'is_liked': is_liked,
     }
     return render(request, 'blog/article_detail.html', context)
 
+
+@login_required
+def article_like(request, slug):
+    """
+    Alterna la reacción 'Me gusta' del usuario activo en el artículo especificado.
+    """
+    article = get_object_or_404(Article, slug=slug, status=Article.Status.PUBLISHED)
+
+    if article.likes.filter(id=request.user.id).exists():
+        article.likes.remove(request.user) # Si ya le gustaba, lo quita
+    else:
+        article.likes.add(request.user) # Si no, lo añade
+
+    return redirect('article_detail', slug=slug)
 
 @login_required
 def article_create(request):

@@ -15,5 +15,8 @@ urlpatterns = [
     # Ruta para procesar el envío de comentarios
     path('article/<slug:slug>/comment/', views.add_comment, name='add_comment'),
 
-
+    # Ruta para dar/quitar Me gusta
+    path('article/<slug:slug>/like/', views.article_like, name='article_like'),
 ]
+
+

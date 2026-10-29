@@ -19,6 +19,17 @@
         Redactado por <strong>{{ article.author.username }}</strong> | Publicado el {{ article.created_at|date:"d de F de Y" }}
     </p>
 
+    <!-- Botón de Me gusta -->
+    <div style="margin: 1rem 0;">
+        {% if user.is_authenticated %}
+            <a href="{% url 'article_like' article.slug %}" class="btn" style="background-color: {% if is_liked %}#e74c3c{% else %}#bdc3c7{% endif %};">
+                ❤️ {% if is_liked %}Te gusta este artículo{% else %}Dar Me gusta{% endif %} ({{ article.likes.count }})
+            </a>
+        {% else %}
+            <span style="color: #7f8c8d; font-size: 0.9rem;">❤️ {{ article.likes.count }} Me gusta</span>
+        {% endif %}
+    </div>
+
     <!-- Contenido completo del artículo -->
     <div style="font-size: 1.1rem; line-height: 1.8; color: #2c3e50; margin: 1.5rem 0;">
         {{ article.content|linebreaks }}

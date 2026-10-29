@@ -79,6 +79,14 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Última Modificación")
     published_at = models.DateTimeField(null=True, blank=True, verbose_name="Fecha de Publicación")
 
+    # Nuevo campo para el sistema de 'Me gusta'
+    likes = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, 
+        blank=True, 
+        related_name='liked_articles', 
+        verbose_name="Me gusta"
+    )
+    
     class Meta:
         verbose_name = "Artículo"
         verbose_name_plural = "Artículos"
